@@ -17,8 +17,14 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 @EnableWebSecurity
 public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
 	
-	@Value("${SPRING_KEY}")
-	String senha;
+	@Value("${SPRING_USER}")
+	String user;
+	
+	@Value("${SPRING_ADMIN}")
+	String admin;
+	
+	@Value("${SPRING_TRAINEE}")
+	String trainee;
 	
 	@Autowired
 	private PasswordEncoder passwordEncoder;
@@ -28,10 +34,12 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
 	protected void configure(HttpSecurity http) throws Exception {
 		// Configuração basic auth  ( base 64 )
 		http
+			.csrf().disable() // Desativa o csrf
 			.authorizeRequests()
 			// Autorizar sem precisar de permissão
-			.antMatchers("/", "index", "/css/*", "/js/*")
-			.permitAll()
+			.antMatchers("/", "index", "/css/*", "/js/*").permitAll()
+			// Só permitir acessar se tiver a role
+			.antMatchers("/api/**").hasRole(ApplicationUserRole.STUDENT.name())
 			.anyRequest()
 			.authenticated()
 			.and()
@@ -43,19 +51,27 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
 	protected UserDetailsService userDetailsService() {
 		// Definindo um usuário instanciado na memória do banco de dados com seu login, senha e role
 		UserDetails annaSmithUser = User.builder()
-			.username(senha)
-			.password(passwordEncoder.encode(senha))
-			.roles("STUDENT") // ROLE_STUDENT
+			.username(user)
+			.password(passwordEncoder.encode(user))
+			.roles(ApplicationUserRole.STUDENT.name()) // ROLE_STUDENT
 			.build();
 		
 		// Definindo um usuário como administrador
 		UserDetails brenoUser = User.builder()
-			.username("breno")
-			.password(passwordEncoder.encode("breno"))
-			.roles("ADMIN") // ROLE_ADMIN
+			.username(admin)
+			.password(passwordEncoder.encode(admin))
+			// Colocando as permissões de admin no usuario
+			.roles(ApplicationUserRole.ADMIN.name()) // ROLE_ADMIN
 			.build();
 		
-		return new InMemoryUserDetailsManager(annaSmithUser, brenoUser);
+		UserDetails tomUser = User.builder()
+				.username(trainee)
+				.password(passwordEncoder.encode(trainee))
+				// Colocando as permissões de admin trainee no trainee
+				.roles(ApplicationUserRole.ADMINTRAINEE.name()) // ROLE_ADMINTRAINEE
+				.build();
+		
+		return new InMemoryUserDetailsManager(annaSmithUser, brenoUser, tomUser);
 		
 	}
 	
