@@ -1,5 +1,7 @@
 package com.dev.rev.security;
 
+import java.util.concurrent.TimeUnit;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -27,6 +29,9 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
 	
 	@Value("${SPRING_TRAINEE}")
 	String trainee;
+	
+	@Value("${KEY_REMEMBER-ME}")
+	String key;
 	
 	@Autowired
 	private PasswordEncoder passwordEncoder;
@@ -64,7 +69,11 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
 			.and()
 			// Form auth
 			.formLogin()
-			.loginPage("/login").permitAll();
+			.loginPage("/login").permitAll()
+			.defaultSuccessUrl("/courses", true)
+			.and()
+			.rememberMe().tokenValiditySeconds((int) TimeUnit.DAYS.toSeconds(21))
+			.key(key);	// Default: 2 semanas
 
 	}
 

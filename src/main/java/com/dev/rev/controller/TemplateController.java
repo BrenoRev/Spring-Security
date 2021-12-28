@@ -18,4 +18,9 @@ public class TemplateController {
 		return "index";
 	}
 	
+	@GetMapping("/courses")
+	public String getStartView() {
+		return "courses";
+	}
+	
 }
