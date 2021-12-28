@@ -11,8 +11,11 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
+		// Configuração basic auth  ( base 64 )
 		http
 			.authorizeRequests()
+			.antMatchers("/", "index", "/css/*", "/js/*")
+			.permitAll()
 			.anyRequest()
 			.authenticated()
 			.and()
