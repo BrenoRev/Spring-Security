@@ -70,11 +70,15 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
 			.and()
 			// Form auth
 			.formLogin()
-			.loginPage("/login").permitAll()
-			.defaultSuccessUrl("/courses", true)
+				.loginPage("/login").permitAll()
+				.defaultSuccessUrl("/courses", true)
+				.usernameParameter("username")
+				.passwordParameter("password")
 			.and()
-			.rememberMe().tokenValiditySeconds((int) TimeUnit.DAYS.toSeconds(21))
-			.key(key)	// Default: 2 semanas
+			.rememberMe()
+				.tokenValiditySeconds((int) TimeUnit.DAYS.toSeconds(21)) // Default: 2 semanas
+				.key(key)
+				.rememberMeParameter("remember-me")
 			.and()
 			.logout()
 				.logoutUrl("/logout")
