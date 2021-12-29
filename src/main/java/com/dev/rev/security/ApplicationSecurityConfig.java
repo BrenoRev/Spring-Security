@@ -1,7 +1,5 @@
 package com.dev.rev.security;
 
-import java.util.concurrent.TimeUnit;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -12,10 +10,11 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import com.dev.rev.auth.ApplicationUserService;
+import com.dev.rev.jwt.JwtUsernameAndPasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -50,50 +49,16 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
 		// Configuração basic auth  ( base 64 )
 		http
 			.csrf().disable() // Desativa o csrf
+			.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+			.and()
+			.addFilter(new JwtUsernameAndPasswordAuthenticationFilter(authenticationManager()))
 			.authorizeRequests()
 			// Autorizar sem precisar de permissão
 			.antMatchers("/", "index", "/css/*", "/js/*").permitAll()
 			// Só permitir acessar se tiver a role
 			.antMatchers("/api/**").hasRole(ApplicationUserRole.STUDENT.name())
-			
-			/* Pode ser substituido por @PreAuthorize() nos mappings dos end-points
-			 * É necessário colocar essa anotação na classe de configuração autorizando os pre authorizes
-			   @EnableGlobalMethodSecurity(prePostEnabled = true)
-			 
-			// Só libera o delete, post e put para quem tiver as autorização dentro de suas respectivas roles
-			
-			.antMatchers(HttpMethod.DELETE, "/management/api/**").hasAuthority(ApplicationUserPermission.COURSE_WRITE.getPermission())
-			.antMatchers(HttpMethod.POST, "/management/api/**").hasAuthority(ApplicationUserPermission.COURSE_WRITE.getPermission())
-			.antMatchers(HttpMethod.PUT, "/management/api/**").hasAuthority(ApplicationUserPermission.COURSE_WRITE.getPermission())
-			
-			// Libera o método get para quem tiver a role admin ou admin trainee
-			 
-			.antMatchers(HttpMethod.GET, "/management/api/**").hasAnyRole(ApplicationUserRole.ADMIN.name(), ApplicationUserRole.ADMINTRAINEE.name())
-			
-			*/
-			
 			.anyRequest()
-			.authenticated()
-			.and()
-			// Form auth
-			.formLogin()
-				.loginPage("/login").permitAll()
-				.defaultSuccessUrl("/courses", true)
-				.usernameParameter("username")
-				.passwordParameter("password")
-			.and()
-			.rememberMe()
-				.tokenValiditySeconds((int) TimeUnit.DAYS.toSeconds(21)) // Default: 2 semanas
-				.key(key)
-				.rememberMeParameter("remember-me")
-			.and()
-			.logout()
-				.logoutUrl("/logout")
-				.logoutRequestMatcher(new AntPathRequestMatcher("/logout","GET"))
-				.clearAuthentication(true)
-				.invalidateHttpSession(true)
-				.deleteCookies("JSESSIONID","remember-me")
-				.logoutSuccessUrl("/login");
+			.authenticated();
 
 	}
 		@Bean
