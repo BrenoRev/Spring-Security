@@ -1,7 +1,7 @@
 package com.dev.rev.auth;
 
 import java.util.Collection;
-import java.util.List;
+import java.util.Set;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -12,7 +12,7 @@ import lombok.Data;
 public class ApplicationUser implements UserDetails {
 	private static final long serialVersionUID = 1L;
 
-	private final List<? extends GrantedAuthority> grantedAuthorities;
+	private final Set<? extends GrantedAuthority> grantedAuthorities;
 	private final String username;
 	private final String password;
 	private final boolean isAccountNonExpired;
