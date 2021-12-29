@@ -14,7 +14,6 @@ import lombok.AllArgsConstructor;
 public class ApplicationUserService implements UserDetailsService{
 
 	@Autowired
-	@Qualifier("fake")
 	private final ApplicationUserDAO applicationUserDAO;
 	
 	@Override

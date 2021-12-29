@@ -11,10 +11,7 @@ import org.springframework.stereotype.Repository;
 import com.dev.rev.security.ApplicationUserRole;
 import com.google.common.collect.Lists;
 
-import lombok.AllArgsConstructor;
-
-@AllArgsConstructor
-@Repository("fake")
+@Repository
 public class FakeApplicationUserDAOService implements ApplicationUserDAO {
 
 	@Value("${SPRING_USER}")
@@ -26,12 +23,17 @@ public class FakeApplicationUserDAOService implements ApplicationUserDAO {
 	@Value("${SPRING_TRAINEE}")
 	String trainee;
 	
-	@Autowired
 	private final PasswordEncoder passwordEncoder;
 	
+	@Autowired
+	public FakeApplicationUserDAOService(PasswordEncoder passwordEncoder) {
+		super();
+		this.passwordEncoder = passwordEncoder;
+	}
+
 	@Override
 	public Optional<ApplicationUser> selectApplicationUserByUsername(String username) {
-		return getApplicationUsers().stream().filter((x) -> username.equals(x.getUsername()))
+		return getApplicationUsers().stream().filter(x -> username.equals(x.getUsername()))
 				.findFirst();
 	}
 	
@@ -41,8 +43,8 @@ public class FakeApplicationUserDAOService implements ApplicationUserDAO {
 				// USER
 				new ApplicationUser(
 						ApplicationUserRole.STUDENT.getGrantedAuthorities(), 
-						passwordEncoder.encode(user), 
 						user,
+						passwordEncoder.encode(user), 
 						true,
 						true,
 						true,
@@ -51,8 +53,8 @@ public class FakeApplicationUserDAOService implements ApplicationUserDAO {
 				// ADMIN
 				new ApplicationUser(
 						ApplicationUserRole.ADMIN.getGrantedAuthorities(), 
-						passwordEncoder.encode(admin), 
 						admin,
+						passwordEncoder.encode(admin), 
 						true,
 						true,
 						true,
@@ -61,8 +63,8 @@ public class FakeApplicationUserDAOService implements ApplicationUserDAO {
 				// TRAINEE
 				new ApplicationUser(
 						ApplicationUserRole.ADMINTRAINEE.getGrantedAuthorities(), 
-						passwordEncoder.encode(trainee), 
 						trainee,
+						passwordEncoder.encode(trainee), 
 						true,
 						true,
 						true,

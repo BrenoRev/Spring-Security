@@ -6,16 +6,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+
+import com.dev.rev.auth.ApplicationUserService;
 
 @Configuration
 @EnableWebSecurity
@@ -34,9 +34,16 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Value("${KEY_REMEMBER-ME}")
 	String key;
 	
-	@Autowired
-	private PasswordEncoder passwordEncoder;
+	private final PasswordEncoder passwordEncoder;
+	private final ApplicationUserService applicationUserService;
 	
+	
+	@Autowired
+	public ApplicationSecurityConfig(PasswordEncoder passwordEncoder, ApplicationUserService applicationUserService) {
+		super();
+		this.passwordEncoder = passwordEncoder;
+		this.applicationUserService = applicationUserService;
+	}
 	
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
@@ -89,41 +96,23 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
 				.logoutSuccessUrl("/login");
 
 	}
+		@Bean
+		public DaoAuthenticationProvider daoAuthenticationProvider() {
+			DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+			provider.setPasswordEncoder(passwordEncoder);
+			provider.setUserDetailsService(applicationUserService);
+			return provider;
+		}
+		
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			auth.authenticationProvider(daoAuthenticationProvider());
+		}
 
-	@Override
-	@Bean
-	protected UserDetailsService userDetailsService() {
-		// Definindo um usuário instanciado na memória do banco de dados com seu login, senha e role
-		UserDetails annaSmithUser = User.builder()
-			.username(user)
-			.password(passwordEncoder.encode(user))
-			//.roles(ApplicationUserRole.STUDENT.name()) // ROLE_STUDENT
-			.authorities(ApplicationUserRole.STUDENT.getGrantedAuthorities())
-			.build();
-		
-		// Definindo um usuário como administrador
-		UserDetails brenoUser = User.builder()
-			.username(admin)
-			.password(passwordEncoder.encode(admin))
-			// Colocando as permissões de admin no usuario
-			//.roles(ApplicationUserRole.ADMIN.name()) // ROLE_ADMIN
-			.authorities(ApplicationUserRole.ADMIN.getGrantedAuthorities())
-			.build();
-		
-		UserDetails tomUser = User.builder()
-				.username(trainee)
-				.password(passwordEncoder.encode(trainee))
-				// Colocando as permissões de admin trainee no trainee
-				//.roles(ApplicationUserRole.ADMINTRAINEE.name()) // ROLE_ADMINTRAINEE
-				.authorities(ApplicationUserRole.ADMINTRAINEE.getGrantedAuthorities())
-				.build();
-		
-		return new InMemoryUserDetailsManager(annaSmithUser, brenoUser, tomUser);
-		
 	}
 	
 	
 
 	
 	
-}
+
