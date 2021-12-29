@@ -10,7 +10,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -22,23 +21,23 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 
+
 public class JwtUsernameAndPasswordAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
-	private final AuthenticationManager authenticationManager;
 	
-	@Value("${SECURITY_KEY}")
-	String securityKey;
+	private AuthenticationManager authenticationManager;
 	
+	// @Value("${SECURITY_KEY}")
+	String security = "SECRETJWT_SECRET_TEST_AXPWSEKKER151WR9";
+
 	@Autowired
 	public JwtUsernameAndPasswordAuthenticationFilter(AuthenticationManager authenticationManager) {
-		super();
 		this.authenticationManager = authenticationManager;
 	}
 
 	@Override
 	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
 			throws AuthenticationException {
-		
 		try {
 			UsernameAndPasswordAuthenticationRequest authenticationRequest =
 					new ObjectMapper()
@@ -67,9 +66,9 @@ public class JwtUsernameAndPasswordAuthenticationFilter extends UsernamePassword
 			.claim("authorities", authResult.getAuthorities())
 			.setIssuedAt(new Date())
 			.setExpiration(java.sql.Date.valueOf(LocalDate.now().plusDays(3)))
-			.signWith(Keys.hmacShaKeyFor(securityKey.getBytes()))
+			.signWith(Keys.hmacShaKeyFor(security.getBytes()))
 			.compact();
-			
+			System.out.println(token);
 		response.addHeader("Authorization", "Bearer " + token);
 	}
 	
