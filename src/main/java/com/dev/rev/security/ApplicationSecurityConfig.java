@@ -14,6 +14,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.dev.rev.auth.ApplicationUserService;
+import com.dev.rev.jwt.JwtTokenVerifier;
 import com.dev.rev.jwt.JwtUsernameAndPasswordAuthenticationFilter;
 
 @Configuration
@@ -52,6 +53,7 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
 			.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 			.and()
 			.addFilter(new JwtUsernameAndPasswordAuthenticationFilter(authenticationManager()))
+			.addFilterAfter(new JwtTokenVerifier(), JwtUsernameAndPasswordAuthenticationFilter.class)
 			.authorizeRequests()
 			// Autorizar sem precisar de permissão
 			.antMatchers("/", "index", "/css/*", "/js/*").permitAll()
