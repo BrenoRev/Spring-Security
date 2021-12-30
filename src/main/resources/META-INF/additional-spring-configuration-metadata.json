@@ -40,23 +40,33 @@
     "description": "A description for 'DB_URL'"
   },
   {
-    "name": "DB_URL",
-    "type": "java.lang.String",
-    "description": "A description for 'DB_URL'"
-  },
-  {
-    "name": "DB_URL",
-    "type": "java.lang.String",
-    "description": "A description for 'DB_URL'"
-  },
-  {
-    "name": "DB_URL",
-    "type": "java.lang.String",
-    "description": "A description for 'DB_URL'"
-  },
-  {
     "name": "SPRING_USER",
     "type": "java.lang.String",
     "description": "A description for 'SPRING_USER'"
+  },
+  {
+    "name": "PREFIX",
+    "type": "java.lang.String",
+    "description": "A description for 'PREFIX'"
+  },
+  {
+    "name": "EXPIRATION_DAYS",
+    "type": "java.lang.String",
+    "description": "A description for 'EXPIRATION_DAYS'"
+  },
+  {
+    "name": "application.jwt.tokenExpirationAfterDays",
+    "type": "java.lang.String",
+    "description": "A description for 'application.jwt.tokenExpirationAfterDays'"
+  },
+  {
+    "name": "application.jwt.secretKey",
+    "type": "java.lang.String",
+    "description": "A description for 'application.jwt.secretKey'"
+  },
+  {
+    "name": "application.jwt.tokenPrefix",
+    "type": "java.lang.String",
+    "description": "A description for 'application.jwt.tokenPrefix'"
   }
 ]}

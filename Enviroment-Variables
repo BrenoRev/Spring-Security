@@ -1,0 +1,10 @@
+DB_URL = jdbc:postgresql://localhost:5432/patch-test
+DB_USERNAME = postgres
+DB_PASSWORD = 123
+SPRING_USER = user
+SPRING_ADMIN = admin
+SPRING_TRAINEE = trainee
+KEY_REMEMBER-ME = secretkeyrme
+SECURITY_KEY= SECRETJWT_SECRET_TEST_AXPWSEKKER151WR9
+PREFIX= Bearer 
+EXPIRATION_DAYS=2

@@ -4,30 +4,24 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Repository;
 
+import com.dev.rev.jwt.JwtConfig;
 import com.dev.rev.security.ApplicationUserRole;
 import com.google.common.collect.Lists;
 
 @Repository
 public class FakeApplicationUserDAOService implements ApplicationUserDAO {
 
-	@Value("${SPRING_USER}")
-	String user;
-	
-	@Value("${SPRING_ADMIN}")
-	String admin;
-	
-	@Value("${SPRING_TRAINEE}")
-	String trainee;
-	
+	private final JwtConfig jwtConfig;
 	private final PasswordEncoder passwordEncoder;
 	
+	
 	@Autowired
-	public FakeApplicationUserDAOService(PasswordEncoder passwordEncoder) {
+	public FakeApplicationUserDAOService(JwtConfig jwtConfig, PasswordEncoder passwordEncoder) {
 		super();
+		this.jwtConfig = jwtConfig;
 		this.passwordEncoder = passwordEncoder;
 	}
 
@@ -43,8 +37,8 @@ public class FakeApplicationUserDAOService implements ApplicationUserDAO {
 				// USER
 				new ApplicationUser(
 						ApplicationUserRole.STUDENT.getGrantedAuthorities(), 
-						user,
-						passwordEncoder.encode(user), 
+						jwtConfig.getUser(),
+						passwordEncoder.encode(jwtConfig.getUser()), 
 						true,
 						true,
 						true,
@@ -53,8 +47,8 @@ public class FakeApplicationUserDAOService implements ApplicationUserDAO {
 				// ADMIN
 				new ApplicationUser(
 						ApplicationUserRole.ADMIN.getGrantedAuthorities(), 
-						admin,
-						passwordEncoder.encode(admin), 
+						jwtConfig.getAdmin(),
+						passwordEncoder.encode(jwtConfig.getAdmin()), 
 						true,
 						true,
 						true,
@@ -63,8 +57,8 @@ public class FakeApplicationUserDAOService implements ApplicationUserDAO {
 				// TRAINEE
 				new ApplicationUser(
 						ApplicationUserRole.ADMINTRAINEE.getGrantedAuthorities(), 
-						trainee,
-						passwordEncoder.encode(trainee), 
+						jwtConfig.getTrainee(),
+						passwordEncoder.encode(jwtConfig.getTrainee()), 
 						true,
 						true,
 						true,

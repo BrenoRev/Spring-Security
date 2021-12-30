@@ -6,11 +6,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.crypto.SecretKey;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -23,34 +25,45 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
 
 public class JwtTokenVerifier extends OncePerRequestFilter{
+	
+	private final SecretKey secretKey;
+	private final JwtConfig jwtConfig;
+	
+	
+	@Autowired
+	public JwtTokenVerifier(SecretKey secretKey, JwtConfig jwtConfig) {
+		super();
+		this.secretKey = secretKey;
+		this.jwtConfig = jwtConfig;
+	}
+
+
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
-		String authorizationHeader = request.getHeader("Authorization");
+		String authorizationHeader = request.getHeader(jwtConfig.getAuthorizationHeader());
 		
-		if(Strings.isNullOrEmpty(authorizationHeader) || !authorizationHeader.startsWith("Bearer ")) {
+		if(Strings.isNullOrEmpty(authorizationHeader) || !authorizationHeader.startsWith(jwtConfig.getTokenPrefix())) {
 			filterChain.doFilter(request, response);
 			return;
 		}
 		
-			String token = authorizationHeader.replace("Bearer ", "");
+			String token = authorizationHeader.replace(jwtConfig.getTokenPrefix(), "");
 			
 		try {
-			
-			String secretKey = "SECRETJWT_SECRET_TEST_AXPWSEKKER151WR9";
 
 			Jws<Claims> claimsJws = Jwts.parserBuilder()
-				.setSigningKey(Keys.hmacShaKeyFor(secretKey.getBytes()))
+				.setSigningKey(secretKey)
 				.build()
 				.parseClaimsJws(token);
 			
 			Claims body = claimsJws.getBody();
 			String username = body.getSubject();
 			
+			@SuppressWarnings("unchecked")
 			var authorities = (List<Map<String, String>>) body.get("authorities");
 			
 			Set<SimpleGrantedAuthority> simpleGrantedAuthorities = authorities.stream()
